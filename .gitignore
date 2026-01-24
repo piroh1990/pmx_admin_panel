@@ -1,0 +1,17 @@
+# Configuration file with sensitive data
+config.php
+
+# Common PHP files
+composer.phar
+/vendor/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
