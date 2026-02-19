@@ -9,9 +9,9 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 
 // Start session for authentication (optional - can be disabled for testing)
-startSecureSession();
+requireAuth();
+$authenticated = true;
 
-$authenticated = isLoggedIn();
 $testResults = [];
 
 // Function to test API call and capture errors
@@ -122,26 +122,24 @@ $testResults[] = [
 ];
 
 // Test 3: Authentication test
-if ($authenticated) {
-    $user = getCurrentUser();
-    $userVMs = getUserVMs();
-    
-    $testResults[] = [
-        'section' => 'Authentication',
-        'tests' => [
-            [
-                'description' => 'User Logged In',
-                'status' => 'success',
-                'message' => $user['username'] . ' (' . $user['name'] . ')',
-            ],
-            [
-                'description' => 'Accessible VMs',
-                'status' => 'info',
-                'message' => implode(', ', array_keys($userVMs)),
-            ],
-        ]
-    ];
-}
+$user = getCurrentUser();
+$userVMs = getUserVMs();
+
+$testResults[] = [
+    'section' => 'Authentication',
+    'tests' => [
+        [
+            'description' => 'User Logged In',
+            'status' => 'success',
+            'message' => $user['username'] . ' (' . $user['name'] . ')',
+        ],
+        [
+            'description' => 'Accessible VMs',
+            'status' => 'info',
+            'message' => implode(', ', array_keys($userVMs)),
+        ],
+    ]
+];
 
 ?>
 <!DOCTYPE html>
@@ -316,14 +314,6 @@ if ($authenticated) {
         <div class="warning">
             <strong>⚠️ Security Warning:</strong> This file shows sensitive debug information. Delete it after debugging!
         </div>
-        
-        <?php if (!$authenticated): ?>
-            <div class="section">
-                <h2>⚠️ Not Authenticated</h2>
-                <p>You are not logged in. Some tests may fail without authentication.</p>
-                <a href="index.php" class="login-link">Go to Login Page</a>
-            </div>
-        <?php endif; ?>
         
         <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Tests</button>
         
