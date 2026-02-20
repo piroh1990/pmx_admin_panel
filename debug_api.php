@@ -8,10 +8,10 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 
-// Start session for authentication (optional - can be disabled for testing)
-startSecureSession();
+// Enforce authentication
+requireAuth();
 
-$authenticated = isLoggedIn();
+$authenticated = true;
 $testResults = [];
 
 // Function to test API call and capture errors
