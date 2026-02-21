@@ -8,10 +8,9 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 
-// Start session for authentication (optional - can be disabled for testing)
-startSecureSession();
+// Require authentication - redirects to login if not logged in
+requireAuth();
 
-$authenticated = isLoggedIn();
 $testResults = [];
 
 // Function to test API call and capture errors
@@ -122,26 +121,24 @@ $testResults[] = [
 ];
 
 // Test 3: Authentication test
-if ($authenticated) {
-    $user = getCurrentUser();
-    $userVMs = getUserVMs();
-    
-    $testResults[] = [
-        'section' => 'Authentication',
-        'tests' => [
-            [
-                'description' => 'User Logged In',
-                'status' => 'success',
-                'message' => $user['username'] . ' (' . $user['name'] . ')',
-            ],
-            [
-                'description' => 'Accessible VMs',
-                'status' => 'info',
-                'message' => implode(', ', array_keys($userVMs)),
-            ],
-        ]
-    ];
-}
+$user = getCurrentUser();
+$userVMs = getUserVMs();
+
+$testResults[] = [
+    'section' => 'Authentication',
+    'tests' => [
+        [
+            'description' => 'User Logged In',
+            'status' => 'success',
+            'message' => $user['username'] . ' (' . $user['name'] . ')',
+        ],
+        [
+            'description' => 'Accessible VMs',
+            'status' => 'info',
+            'message' => implode(', ', array_keys($userVMs)),
+        ],
+    ]
+];
 
 ?>
 <!DOCTYPE html>
@@ -317,14 +314,6 @@ if ($authenticated) {
             <strong>⚠️ Security Warning:</strong> This file shows sensitive debug information. Delete it after debugging!
         </div>
         
-        <?php if (!$authenticated): ?>
-            <div class="section">
-                <h2>⚠️ Not Authenticated</h2>
-                <p>You are not logged in. Some tests may fail without authentication.</p>
-                <a href="index.php" class="login-link">Go to Login Page</a>
-            </div>
-        <?php endif; ?>
-        
         <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Tests</button>
         
         <?php foreach ($testResults as $section): ?>
@@ -374,9 +363,6 @@ if ($authenticated) {
             <h2>Quick Actions</h2>
             <a href="admin.php" class="refresh-btn" style="text-decoration: none; display: inline-block;">
                 Go to Admin Panel
-            </a>
-            <a href="index.php" class="refresh-btn" style="text-decoration: none; display: inline-block; background: #f90;">
-                Go to Login
             </a>
         </div>
     </div>
