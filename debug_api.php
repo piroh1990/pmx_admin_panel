@@ -127,26 +127,24 @@ $testResults[] = [
 ];
 
 // Test 3: Authentication test
-if ($authenticated) {
-    $user = getCurrentUser();
-    $userVMs = getUserVMs();
-    
-    $testResults[] = [
-        'section' => 'Authentication',
-        'tests' => [
-            [
-                'description' => 'User Logged In',
-                'status' => 'success',
-                'message' => $user['username'] . ' (' . $user['name'] . ')',
-            ],
-            [
-                'description' => 'Accessible VMs',
-                'status' => 'info',
-                'message' => implode(', ', array_keys($userVMs)),
-            ],
-        ]
-    ];
-}
+$user = getCurrentUser();
+$userVMs = getUserVMs();
+
+$testResults[] = [
+    'section' => 'Authentication',
+    'tests' => [
+        [
+            'description' => 'User Logged In',
+            'status' => 'success',
+            'message' => $user['username'] . ' (' . $user['name'] . ')',
+        ],
+        [
+            'description' => 'Accessible VMs',
+            'status' => 'info',
+            'message' => implode(', ', array_keys($userVMs)),
+        ],
+    ]
+];
 
 ?>
 <!DOCTYPE html>
@@ -372,9 +370,6 @@ if ($authenticated) {
             <h2>Quick Actions</h2>
             <a href="admin.php" class="refresh-btn" style="text-decoration: none; display: inline-block;">
                 Go to Admin Panel
-            </a>
-            <a href="index.php" class="refresh-btn" style="text-decoration: none; display: inline-block; background: #f90;">
-                Go to Login
             </a>
         </div>
     </div>
