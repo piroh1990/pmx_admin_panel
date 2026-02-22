@@ -7,7 +7,12 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 
-requireAuth();
+startSecureSession();
+
+if (!isLoggedIn()) {
+    header('Location: index.php');
+    exit;
+}
 
 echo "<!DOCTYPE html>
 <html>

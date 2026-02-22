@@ -365,9 +365,6 @@ $testResults[] = [
             <a href="admin.php" class="refresh-btn" style="text-decoration: none; display: inline-block;">
                 Go to Admin Panel
             </a>
-            <a href="index.php" class="refresh-btn" style="text-decoration: none; display: inline-block; background: #f90;">
-                Go to Login
-            </a>
         </div>
     </div>
 </body>
