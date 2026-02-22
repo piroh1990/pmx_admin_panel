@@ -8,15 +8,10 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 
-// Start session and require authentication
-startSecureSession();
-
-if (!isLoggedIn()) {
-    header('Location: index.php');
-    exit;
-}
-
+// Start session for authentication (optional - can be disabled for testing)
+requireAuth();
 $authenticated = true;
+
 $testResults = [];
 
 // Function to test API call and capture errors
@@ -319,7 +314,6 @@ $testResults[] = [
         <div class="warning">
             <strong>⚠️ Security Warning:</strong> This file shows sensitive debug information. Delete it after debugging!
         </div>
-        
         
         <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Tests</button>
         

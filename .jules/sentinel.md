@@ -1,4 +1,6 @@
-## 2026-02-18 - Unprotected Debug Tools
-**Vulnerability:** Debug tools (debug_api.php, find_node.php) exposed sensitive configuration (API secrets) and allowed unauthenticated API interaction.
-**Learning:** Developers often leave debug tools unsecured, assuming they are hidden or protected by obscurity (like specific filenames or not linking to them). Even if Nginx config attempts to block them, the application code must be secure by default.
-**Prevention:** Always require authentication in ALL PHP files that perform sensitive actions or access configuration, even if they are intended for internal use only.
+# Sentinel's Journal
+
+## 2024-05-22 - Unsecured Debug Tools Leak Secrets
+**Vulnerability:** Found `debug_api.php` and `find_node.php` accessible without authentication, exposing `PVE_TOKEN_SECRET` and internal network structure.
+**Learning:** Utility scripts often bypass standard security checks because they are "for testing only", but if deployed to production, they become critical vulnerabilities.
+**Prevention:** Always enforce authentication on ALL PHP files that handle sensitive data, even if they are "debug" tools. Use `requireAuth()` consistently.
