@@ -1,9 +1,4 @@
-## 2024-05-23 - Unauthenticated Debug Endpoint
-**Vulnerability:** Found `debug_api.php` which exposed sensitive configuration (API tokens, host details) without requiring authentication.
-**Learning:** Utility/debug scripts often bypass standard security controls (like `requireAuth()`) because developers treat them as temporary or local-only tools, leading to critical information disclosure.
-**Prevention:** Enforce a "secure by default" policy where ALL PHP files (except public entry points like login) must call `requireAuth()` at the top. Use web server config to block access to `debug_*` files in production as a second layer of defense.
-
-## 2024-05-24 - Exception Information Leakage
-**Vulnerability:** Found `status.php`, `actions.php`, and `proxmox_api.php` directly echoing exception messages, file paths, and line numbers in JSON responses.
-**Learning:** Raw PHP exception handling without a framework often leads to developers exposing internal details (like `getMessage()` and `getFile()`) for debugging convenience, which persists into production and aids attackers in reconnaissance.
-**Prevention:** Implement a global exception handler or ensure all API endpoints catch exceptions, log the full details server-side using `error_log()`, and return only generic, sanitized error messages to the client.
+## 2026-02-18 - Unprotected Debug Tools
+**Vulnerability:** Debug tools (debug_api.php, find_node.php) exposed sensitive configuration (API secrets) and allowed unauthenticated API interaction.
+**Learning:** Developers often leave debug tools unsecured, assuming they are hidden or protected by obscurity (like specific filenames or not linking to them). Even if Nginx config attempts to block them, the application code must be secure by default.
+**Prevention:** Always require authentication in ALL PHP files that perform sensitive actions or access configuration, even if they are intended for internal use only.
