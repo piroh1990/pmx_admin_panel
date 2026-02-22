@@ -54,9 +54,10 @@ try {
     vmAction($vmid, $action);
     echo json_encode(['status' => 'ok']);
 } catch (Exception $e) {
+    error_log("VM Action Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => 'An error occurred while executing the action.'
     ]);
 }
