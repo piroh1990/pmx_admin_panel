@@ -105,8 +105,14 @@ function attemptLogin($username, $password) {
     $_SESSION['last_attempt'] = time();
     
     // Check if user exists and password is correct
-    if (isset($USERS[$username]) && 
-        password_verify($password, $USERS[$username]['password_hash'])) {
+    // Security: Use constant-time comparison to prevent user enumeration
+    $userExists = isset($USERS[$username]);
+    $hash = $userExists ? $USERS[$username]['password_hash'] : '$2y$10$qSVjVn0e5vzcMQ0hqPT91OvGBqBtCzY4H6Mluhp2LXwHbYk8KkTS.'; // Dummy hash
+
+    // Always verify the password against the hash (real or dummy) to ensure consistent timing
+    $passwordValid = password_verify($password, $hash);
+
+    if ($userExists && $passwordValid) {
         
         // Successful login
         $_SESSION['login_attempts'] = 0;
