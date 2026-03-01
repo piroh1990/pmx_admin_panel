@@ -89,6 +89,14 @@ function requireAuth() {
 
 // Attempt to log in a user
 function attemptLogin($username, $password) {
+    // Input validation to prevent TypeErrors when arrays are passed via $_POST
+    if (!is_string($username) || !is_string($password)) {
+        return [
+            'success' => false,
+            'message' => 'Invalid username or password'
+        ];
+    }
+
     global $USERS;
     
     // Rate limiting - simple approach
