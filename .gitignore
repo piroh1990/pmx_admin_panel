@@ -1,5 +1,5 @@
 # Configuration file with sensitive data
-config.php
+config/config.php
 
 # Common PHP files
 composer.phar

@@ -4,7 +4,7 @@
  * Finds the correct node name for your Proxmox installation
  */
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/auth.php';
 
 startSecureSession();
@@ -106,7 +106,7 @@ if ($error) {
             echo "<h4>Node: <code>$nodeName</code> - $online</h4>";
             echo "<pre>" . htmlspecialchars(json_encode($node, JSON_PRETTY_PRINT)) . "</pre>";
             
-            echo "<h4>Update your config.php:</h4>";
+            echo "<h4>Update your config/config.php:</h4>";
             echo "<pre>define('PVE_NODE', '$nodeName');</pre>";
             echo "</div>";
         }

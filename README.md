@@ -24,10 +24,10 @@ A secure, lightweight PHP-based admin panel for managing Proxmox VMs without a d
 
 2. **Configure the application**
    ```bash
-   cp config.example.php config.php
+   cp config/config.example.php config/config.php
    ```
 
-3. **Edit `config.php`** with your settings:
+3. **Edit `config/config.php`** with your settings:
    - Proxmox host and node information
    - API token credentials
    - VM list you want to manage (only these VMs will be accessible)
@@ -36,7 +36,7 @@ A secure, lightweight PHP-based admin panel for managing Proxmox VMs without a d
 ## VM Access Control
 
 ### Global VM List
-The `$VMS` array in `config.php` defines all available VMs in the system:
+The `$VMS` array in `config/config.php` defines all available VMs in the system:
 
 ```php
 $VMS = [
@@ -82,21 +82,21 @@ $USERS = [
 
 4. **Deploy to your web server**
    - Make sure PHP is installed (PHP 7.4+ recommended)
-   - Point your web server to the project directory
+   - Point your web server root to the `public_html` directory
    - Ensure proper file permissions
 
 ## User Management
 
 ### Adding Users
 
-Users are stored in the `$USERS` array in `config.php`. Each user needs a hashed password.
+Users are stored in the `$USERS` array in `config/config.php`. Each user needs a hashed password.
 
 **Generate a password hash:**
 ```bash
 php -r "echo password_hash('your_password_here', PASSWORD_DEFAULT) . PHP_EOL;"
 ```
 
-**Add to config.php:**
+**Add to config/config.php:**
 ```php
 $USERS = [
     'admin' => [
@@ -132,7 +132,7 @@ The example config comes with:
 
 ## Configuration Options
 
-### Session Settings (config.php)
+### Session Settings (config/config.php)
 
 ```php
 define('SESSION_NAME', 'pmx_admin_session');  // Session cookie name
@@ -149,17 +149,25 @@ define('VERIFY_SSL', false);  // Set to true in production with valid SSL cert
 
 ```
 pmx_admin_panel/
-├── index.php           # Login page
-├── admin.php           # Main VM management dashboard
-├── logout.php          # Logout handler
-├── actions.php         # API endpoint for VM actions
-├── status.php          # API endpoint for VM status
-├── auth.php            # Authentication helper functions
-├── proxmox_api.php     # Proxmox API integration
-├── config.php          # Your configuration (not in git)
-├── config.example.php  # Configuration template
-├── generate_password.php  # Web-based password hash generator
-└── .gitignore          # Prevents config.php from being committed
+├── public_html/            # Web root (point your web server here)
+│   ├── index.php           # Login page
+│   ├── admin.php           # Main VM management dashboard
+│   ├── logout.php          # Logout handler
+│   ├── actions.php         # API endpoint for VM actions
+│   ├── status.php          # API endpoint for VM status
+│   ├── auth.php            # Authentication helper functions
+│   ├── proxmox_api.php     # Proxmox API integration
+│   ├── guard.php           # Security guard for include-only files
+│   ├── debug_api.php       # API debug and test tool
+│   ├── find_node.php       # Proxmox node discovery tool
+│   └── check_status.php    # Quick status check tool
+├── config/                 # Configuration files (outside web root)
+│   ├── config.php          # Your configuration (not in git)
+│   ├── config.example.php  # Configuration template
+│   └── nginx-security.conf # Nginx security configuration
+├── .jules/                 # Jules configuration
+├── README.md               # This file
+└── .gitignore              # Prevents config.php from being committed
 ```
 
 ## Usage
@@ -205,7 +213,7 @@ For running VMs, the dashboard displays:
 Wait 15 minutes or clear your session cookie.
 
 ### Session expires too quickly
-Increase `SESSION_LIFETIME` in `config.php`.
+Increase `SESSION_LIFETIME` in `config/config.php`.
 
 ### CSRF token errors
 Make sure cookies are enabled and you're not blocking JavaScript.
@@ -221,7 +229,7 @@ Make sure cookies are enabled and you're not blocking JavaScript.
 ⚠️ **Important Security Notes:**
 
 1. **Use HTTPS:** Always use HTTPS in production to protect credentials
-2. **Secure config.php:** Ensure proper file permissions (600 or 640)
+2. **Secure config/config.php:** Ensure proper file permissions (600 or 640)
 3. **Change default passwords:** Never use example passwords in production
 4. **Regular updates:** Keep PHP updated for security patches
 5. **Audit logs:** Consider adding logging for security events

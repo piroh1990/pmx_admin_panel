@@ -10,7 +10,7 @@ if (basename($_SERVER['PHP_SELF']) === 'auth.php') {
     die('Direct access not permitted');
 }
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 // Start session with secure settings
 function startSecureSession() {
