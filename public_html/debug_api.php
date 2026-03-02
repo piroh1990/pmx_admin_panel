@@ -4,7 +4,7 @@
  * This helps you diagnose issues with the Proxmox API connection
  */
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 

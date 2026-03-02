@@ -5,7 +5,7 @@ if (basename($_SERVER['PHP_SELF']) === 'proxmox_api.php') {
     die('Direct access not permitted');
 }
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 function proxmoxRequest(string $endpoint, string $method = 'POST')
 {

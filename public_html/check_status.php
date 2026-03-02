@@ -3,7 +3,7 @@
  * Quick Status Check
  * Shows real-time errors and responses from the API
  */
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/auth.php';
 
 startSecureSession();
@@ -98,7 +98,7 @@ $csrfToken = generateCsrfToken();
         
         <div class="info-box">
             <strong>User:</strong> <?= htmlspecialchars($user['name']) ?><br>
-            <strong>Config File:</strong> <?= file_exists(__DIR__ . '/config.php') ? '✓ Found' : '✗ Missing' ?><br>
+            <strong>Config File:</strong> <?= file_exists(__DIR__ . '/../config/config.php') ? '✓ Found' : '✗ Missing' ?><br>
             <strong>Proxmox Host:</strong> <?= htmlspecialchars(PVE_HOST) ?><br>
             <strong>Node:</strong> <?= htmlspecialchars(PVE_NODE) ?>
         </div>
