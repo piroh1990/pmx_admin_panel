@@ -236,4 +236,4 @@ Make sure cookies are enabled and you're not blocking JavaScript.
 
 ## License
 
-MIT License - feel free to modify and use as needed.
+GNU General Public License v3.0
