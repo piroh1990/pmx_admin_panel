@@ -227,5 +227,8 @@ function generateCsrfToken() {
 
 // Verify CSRF token
 function verifyCsrfToken($token) {
+    if (!is_string($token)) {
+        return false;
+    }
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
