@@ -235,7 +235,8 @@ button:hover {
     <h1>🖥️ Proxmox VM Admin</h1>
     <div class="user-info">
         <span class="user-name">👤 <?= htmlspecialchars($user['name']) ?></span>
-        <form method="GET" action="logout.php" style="margin: 0;">
+        <form method="POST" action="logout.php" style="margin: 0;">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <button type="submit" class="logout-btn">Logout</button>
         </form>
     </div>
