@@ -293,7 +293,11 @@ let statusInterval;
 
 // Fetch VM statuses
 function fetchVmStatuses() {
-    fetch('status.php?csrf_token=' + encodeURIComponent(csrfToken))
+    fetch('status.php', {
+        headers: {
+            'X-CSRF-Token': csrfToken
+        }
+    })
         .then(r => {
             console.log('Status API Response Code:', r.status);
             if (!r.ok) {

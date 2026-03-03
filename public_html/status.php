@@ -16,7 +16,7 @@ if (!isLoggedIn()) {
 }
 
 // Verify CSRF token
-$csrfToken = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+$csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($csrfToken)) {
     http_response_code(403);
     echo json_encode([

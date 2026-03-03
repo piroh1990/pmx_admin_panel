@@ -140,7 +140,11 @@ $csrfToken = generateCsrfToken();
             log('Testing API connection...', 'info');
             
             try {
-                const response = await fetch('status.php?csrf_token=' + encodeURIComponent(csrfToken));
+                const response = await fetch('status.php', {
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
                 log(`Response Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
                 
                 const text = await response.text();
@@ -181,10 +185,14 @@ $csrfToken = generateCsrfToken();
             log('Testing status endpoint directly...', 'info');
             
             try {
-                const url = 'status.php?csrf_token=' + encodeURIComponent(csrfToken);
+                const url = 'status.php';
                 log('Fetching: ' + url, 'info');
                 
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
                 log('HTTP Status: ' + response.status, response.ok ? 'success' : 'error');
                 log('Content-Type: ' + response.headers.get('content-type'), 'info');
                 
