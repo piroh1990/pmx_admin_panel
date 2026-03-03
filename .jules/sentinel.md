@@ -14,3 +14,8 @@
 **Vulnerability:** `attemptLogin` in `auth.php` lacked explicit type checking for `$username` and `$password`, making it vulnerable to TypeErrors when arrays were passed via `$_POST` (e.g., `username[]=admin`).
 **Learning:** Raw PHP arrays passed to string-only functions (like `password_verify` or array key accesses) cause fatal TypeErrors. Unhandled errors can crash the PHP process for a request, leak internals if error reporting is on, or potentially lead to DoS.
 **Prevention:** Always validate user input types using `is_string()` before processing credentials or passing input to functions that strictly expect strings.
+
+## 2024-05-25 - CSRF Token Leak in URLs
+**Vulnerability:** `admin.php` and `check_status.php` passed the CSRF token to `status.php` via a GET parameter in the URL.
+**Learning:** Passing security tokens or session identifiers in the URL query string exposes them to server logs, proxy logs, browser history, and the `Referer` header.
+**Prevention:** For GET requests that require CSRF protection, pass the token securely using a custom HTTP header (like `X-CSRF-Token`).
