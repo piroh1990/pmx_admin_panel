@@ -99,26 +99,25 @@ function attemptLogin($username, $password) {
 
     global $USERS;
     
-    // Rate limiting - simple approach
-    if (!isset($_SESSION['login_attempts'])) {
-        $_SESSION['login_attempts'] = 0;
-        $_SESSION['last_attempt'] = 0;
+    // Rate limiting by IP to prevent session-dropping bypasses
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $rateLimitFile = sys_get_temp_dir() . '/pmx_login_' . md5($ip) . '.txt';
+    $attempts = 0;
+
+    if (file_exists($rateLimitFile)) {
+        $data = explode('|', @file_get_contents($rateLimitFile));
+        if (count($data) === 2 && time() - (int)$data[1] <= 900) {
+            $attempts = (int)$data[0];
+        }
     }
-    
-    // Reset attempts after 15 minutes
-    if (time() - $_SESSION['last_attempt'] > 900) {
-        $_SESSION['login_attempts'] = 0;
-    }
-    
+
     // Max 5 attempts
-    if ($_SESSION['login_attempts'] >= 5) {
+    if ($attempts >= 5) {
         return [
             'success' => false,
             'message' => 'Too many failed attempts. Please try again in 15 minutes.'
         ];
     }
-    
-    $_SESSION['last_attempt'] = time();
     
     // Check if user exists
     $userExists = isset($USERS[$username]);
@@ -133,8 +132,10 @@ function attemptLogin($username, $password) {
     // Check if user exists and password is correct
     if ($userExists && $passwordValid) {
         
-        // Successful login
-        $_SESSION['login_attempts'] = 0;
+        // Successful login - clear rate limit
+        if (file_exists($rateLimitFile)) {
+            @unlink($rateLimitFile);
+        }
         $_SESSION['user'] = $username;
         $_SESSION['name'] = $USERS[$username]['name'];
         $_SESSION['authenticated'] = true;
@@ -151,7 +152,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    $_SESSION['login_attempts']++;
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
     
     return [
         'success' => false,

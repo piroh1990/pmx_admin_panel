@@ -19,3 +19,8 @@
 **Vulnerability:** `admin.php` and `check_status.php` passed the CSRF token to `status.php` via a GET parameter in the URL.
 **Learning:** Passing security tokens or session identifiers in the URL query string exposes them to server logs, proxy logs, browser history, and the `Referer` header.
 **Prevention:** For GET requests that require CSRF protection, pass the token securely using a custom HTTP header (like `X-CSRF-Token`).
+
+## 2024-05-26 - Rate Limiting Bypass via Session Dropping
+**Vulnerability:** The login rate limiting in `auth.php` was tracking failed attempts using `$_SESSION`. An attacker could bypass the 5-attempt limit completely by simply clearing their session cookie on every request, allowing infinite brute-force attacks on the login endpoint.
+**Learning:** Storing security state (like rate limit counters) in a client-controlled mechanism like a session cookie makes the protection trivial to bypass. If an attacker can drop the cookie, they drop the restriction.
+**Prevention:** Always track authentication rate limiting server-side, tied to an identifier the client cannot easily change or omit, such as the IP address (`$_SERVER['REMOTE_ADDR']`).
