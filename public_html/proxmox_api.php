@@ -1,6 +1,6 @@
 <?php
 // Prevent direct access
-if (basename($_SERVER['PHP_SELF']) === 'proxmox_api.php') {
+if (count(get_included_files()) === 1) {
     http_response_code(403);
     die('Direct access not permitted');
 }

@@ -24,3 +24,8 @@
 **Vulnerability:** The login rate limiting in `auth.php` was tracking failed attempts using `$_SESSION`. An attacker could bypass the 5-attempt limit completely by simply clearing their session cookie on every request, allowing infinite brute-force attacks on the login endpoint.
 **Learning:** Storing security state (like rate limit counters) in a client-controlled mechanism like a session cookie makes the protection trivial to bypass. If an attacker can drop the cookie, they drop the restriction.
 **Prevention:** Always track authentication rate limiting server-side, tied to an identifier the client cannot easily change or omit, such as the IP address (`$_SERVER['REMOTE_ADDR']`).
+
+## 2026-03-06 - Direct Access Bypass via PATH_INFO
+**Vulnerability:** Include-only files (`auth.php`, `proxmox_api.php`, `guard.php`) used `basename($_SERVER['PHP_SELF'])` to check if they were accessed directly. An attacker could bypass this by appending `/foo` to the URL (e.g., `/auth.php/foo`), making `basename` return `foo` instead of the filename, causing the security check to fail and executing the file directly.
+**Learning:** `$_SERVER['PHP_SELF']` includes PATH_INFO, meaning it can be manipulated by the client appending paths to an existing file endpoint. Relying on `basename($_SERVER['PHP_SELF'])` for access control is insecure and easily bypassed.
+**Prevention:** Use `count(get_included_files()) === 1` to reliably determine if a PHP script is the main entry point (being accessed directly). This method is immune to PATH_INFO manipulation.
