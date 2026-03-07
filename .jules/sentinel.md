@@ -29,3 +29,8 @@
 **Vulnerability:** Include-only files (`auth.php`, `proxmox_api.php`, `guard.php`) used `basename($_SERVER['PHP_SELF'])` to check if they were accessed directly. An attacker could bypass this by appending `/foo` to the URL (e.g., `/auth.php/foo`), making `basename` return `foo` instead of the filename, causing the security check to fail and executing the file directly.
 **Learning:** `$_SERVER['PHP_SELF']` includes PATH_INFO, meaning it can be manipulated by the client appending paths to an existing file endpoint. Relying on `basename($_SERVER['PHP_SELF'])` for access control is insecure and easily bypassed.
 **Prevention:** Use `count(get_included_files()) === 1` to reliably determine if a PHP script is the main entry point (being accessed directly). This method is immune to PATH_INFO manipulation.
+
+## 2024-05-27 - Missing Timeout on External API Calls
+**Vulnerability:** External API calls to the Proxmox server via cURL (`proxmoxRequest`) did not have a timeout configured. If the Proxmox server became unresponsive or unreachable, the PHP process would hang indefinitely, potentially leading to resource exhaustion and a Denial of Service (DoS) condition.
+**Learning:** Default cURL configurations in PHP do not enforce a strict timeout. Relying on default timeouts can cause applications to hang and consume server resources (like PHP-FPM workers) when interacting with unstable external services.
+**Prevention:** Always explicitly set `CURLOPT_TIMEOUT` (and optionally `CURLOPT_CONNECTTIMEOUT`) for all external HTTP requests to ensure they fail fast and fail securely.
