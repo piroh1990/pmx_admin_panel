@@ -97,6 +97,14 @@ function attemptLogin($username, $password) {
         ];
     }
 
+    // Input length limits to prevent DoS attacks via excessively long strings
+    if (strlen($username) > 255 || strlen($password) > 1024) {
+        return [
+            'success' => false,
+            'message' => 'Invalid username or password'
+        ];
+    }
+
     global $USERS;
     
     // Rate limiting by IP to prevent session-dropping bypasses
