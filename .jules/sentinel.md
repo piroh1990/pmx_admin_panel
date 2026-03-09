@@ -34,3 +34,8 @@
 **Vulnerability:** External API calls to the Proxmox server via cURL (`proxmoxRequest`) did not have a timeout configured. If the Proxmox server became unresponsive or unreachable, the PHP process would hang indefinitely, potentially leading to resource exhaustion and a Denial of Service (DoS) condition.
 **Learning:** Default cURL configurations in PHP do not enforce a strict timeout. Relying on default timeouts can cause applications to hang and consume server resources (like PHP-FPM workers) when interacting with unstable external services.
 **Prevention:** Always explicitly set `CURLOPT_TIMEOUT` (and optionally `CURLOPT_CONNECTTIMEOUT`) for all external HTTP requests to ensure they fail fast and fail securely.
+
+## 2024-05-28 - Insecure Direct Object Reference (IDOR) in Debug Tools
+**Vulnerability:** `debug_api.php` accessed the global `$VMS` array to iterate over and test all VM statuses, completely bypassing the authorization checks defined in `getUserVMs()` for the logged-in user.
+**Learning:** Diagnostic and debug tools often bypass standard access-control abstractions in an attempt to provide complete visibility. When these tools are accessible in production, they can expose sensitive data or functionality across security boundaries (e.g., exposing one tenant's VMs to another tenant).
+**Prevention:** Debug endpoints must respect the same role-based access control (RBAC) and authorization constraints as the primary application features unless explicitly restricted to super-administrators. Always use data-access functions (`getUserVMs()`) instead of raw global state (`global $VMS`).

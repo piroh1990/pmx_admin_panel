@@ -108,9 +108,9 @@ $apiTests[] = testApiCall('Test API endpoint accessibility', function() {
     return $data;
 });
 
-// Test 2: List all VMs from config
-global $VMS;
-foreach ($VMS as $vmid => $name) {
+// Test 2: List VMs accessible to the user
+$userVMs = getUserVMs();
+foreach ($userVMs as $vmid => $name) {
     $apiTests[] = testApiCall("Get status for VM $vmid ($name)", function() use ($vmid) {
         return getVmStatus($vmid);
     });
