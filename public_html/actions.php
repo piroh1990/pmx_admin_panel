@@ -52,8 +52,14 @@ if (!canAccessVM($vmid)) {
 
 try {
     vmAction($vmid, $action);
+    $username = $_SESSION['user'] ?? 'unknown';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    error_log("AUDIT: User '{$username}' (IP: {$ip}) successfully executed '{$action}' on VM {$vmid}.");
     echo json_encode(['status' => 'ok']);
 } catch (Exception $e) {
+    $username = $_SESSION['user'] ?? 'unknown';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    error_log("AUDIT: User '{$username}' (IP: {$ip}) failed to execute '{$action}' on VM {$vmid}. Error: " . $e->getMessage());
     error_log("VM Action Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
