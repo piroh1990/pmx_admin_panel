@@ -68,7 +68,7 @@ echo "<!DOCTYPE html>
 $url = PVE_HOST . '/api2/json/nodes';
 
 echo "<div class='box'>";
-echo "<h2>Testing: $url</h2>";
+echo "<h2>Testing: " . htmlspecialchars($url) . "</h2>";
 
 $ch = curl_init($url);
 curl_setopt_array($ch, [
@@ -86,7 +86,7 @@ $error = curl_error($ch);
 curl_close($ch);
 
 if ($error) {
-    echo "<div class='error'><strong>cURL Error:</strong> $error</div>";
+    echo "<div class='error'><strong>cURL Error:</strong> " . htmlspecialchars($error) . "</div>";
 } elseif ($httpCode >= 400) {
     echo "<div class='error'><strong>HTTP Error $httpCode</strong></div>";
     echo "<pre>" . htmlspecialchars($response) . "</pre>";
@@ -103,11 +103,11 @@ if ($error) {
             $online = ($status === 'online') ? '✓ ONLINE' : '✗ OFFLINE';
             
             echo "<div class='box'>";
-            echo "<h4>Node: <code>$nodeName</code> - $online</h4>";
+            echo "<h4>Node: <code>" . htmlspecialchars($nodeName) . "</code> - $online</h4>";
             echo "<pre>" . htmlspecialchars(json_encode($node, JSON_PRETTY_PRINT)) . "</pre>";
             
             echo "<h4>Update your config/config.php:</h4>";
-            echo "<pre>define('PVE_NODE', '$nodeName');</pre>";
+            echo "<pre>define('PVE_NODE', '" . htmlspecialchars($nodeName) . "');</pre>";
             echo "</div>";
         }
         echo "</div>";
