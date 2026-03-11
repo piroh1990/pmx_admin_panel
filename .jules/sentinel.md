@@ -39,3 +39,8 @@
 **Vulnerability:** `debug_api.php` accessed the global `$VMS` array to iterate over and test all VM statuses, completely bypassing the authorization checks defined in `getUserVMs()` for the logged-in user.
 **Learning:** Diagnostic and debug tools often bypass standard access-control abstractions in an attempt to provide complete visibility. When these tools are accessible in production, they can expose sensitive data or functionality across security boundaries (e.g., exposing one tenant's VMs to another tenant).
 **Prevention:** Debug endpoints must respect the same role-based access control (RBAC) and authorization constraints as the primary application features unless explicitly restricted to super-administrators. Always use data-access functions (`getUserVMs()`) instead of raw global state (`global $VMS`).
+
+## 2024-05-29 - Cross-Site Scripting (XSS) Vulnerabilities
+**Vulnerability:** Found both DOM-based XSS in `check_status.php` (unsanitized API response injected via `innerHTML`) and Reflected XSS in `find_node.php` (unsanitized node names and errors echoed directly into HTML output).
+**Learning:** Even internal diagnostic tools need strict output encoding. `innerHTML` should be avoided for rendering data from external APIs, and raw `echo` statements in PHP are dangerous if the input isn't entirely trusted or static.
+**Prevention:** Always use `document.createTextNode()` or `textContent` for dynamic DOM manipulation in JavaScript. In PHP, consistently apply `htmlspecialchars()` to any variables being output into an HTML context.

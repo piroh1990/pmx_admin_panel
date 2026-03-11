@@ -126,7 +126,8 @@ $csrfToken = generateCsrfToken();
             const entry = document.createElement('div');
             entry.className = 'log-entry ' + type;
             const timestamp = new Date().toLocaleTimeString();
-            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> `;
+            entry.appendChild(document.createTextNode(message));
             logDiv.appendChild(entry);
             logDiv.scrollTop = logDiv.scrollHeight;
         }
