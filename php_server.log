@@ -1,0 +1,26 @@
+[Thu Mar 12 05:47:32 2026] PHP 8.3.6 Development Server (http://localhost:8080) started
+[Thu Mar 12 05:47:44 2026] [::1]:55836 Accepted
+[Thu Mar 12 05:47:44 2026] [::1]:55836 [200]: GET /index.php
+[Thu Mar 12 05:47:44 2026] [::1]:55836 Closing
+[Thu Mar 12 05:47:45 2026] [::1]:55842 Accepted
+[Thu Mar 12 05:47:45 2026] AUDIT: Successful login for user: 'admin' from IP: ::1.
+[Thu Mar 12 05:47:45 2026] [::1]:55842 [302]: POST /index.php
+[Thu Mar 12 05:47:45 2026] [::1]:55842 Closing
+[Thu Mar 12 05:47:45 2026] [::1]:55852 Accepted
+[Thu Mar 12 05:47:45 2026] [::1]:55852 [200]: GET /admin.php
+[Thu Mar 12 05:47:45 2026] [::1]:55852 Closing
+[Thu Mar 12 05:47:45 2026] [::1]:55866 Accepted
+[Thu Mar 12 05:47:45 2026] VM Status Error (101): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:45 2026] VM Status Error (102): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:45 2026] VM Status Error (103): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:45 2026] [::1]:55866 [200]: GET /status.php
+[Thu Mar 12 05:47:45 2026] [::1]:55866 Closing
+[Thu Mar 12 05:47:45 2026] [::1]:55876 Accepted
+[Thu Mar 12 05:47:45 2026] [::1]:55876 [200]: GET /check_status.php
+[Thu Mar 12 05:47:45 2026] [::1]:55876 Closing
+[Thu Mar 12 05:47:46 2026] [::1]:55886 Accepted
+[Thu Mar 12 05:47:46 2026] VM Status Error (101): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:46 2026] VM Status Error (102): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:46 2026] VM Status Error (103): Could not resolve host: proxmox.example.com
+[Thu Mar 12 05:47:46 2026] [::1]:55886 [200]: GET /status.php
+[Thu Mar 12 05:47:46 2026] [::1]:55886 Closing

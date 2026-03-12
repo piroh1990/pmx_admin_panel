@@ -17,6 +17,7 @@ function proxmoxRequest(string $endpoint, string $method = 'POST')
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => VERIFY_SSL,
         CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
         CURLOPT_HTTPHEADER     => [
             'Authorization: PVEAPIToken=' . PVE_TOKEN_ID . '=' . PVE_TOKEN_SECRET
         ],

@@ -126,14 +126,19 @@ $csrfToken = generateCsrfToken();
             const entry = document.createElement('div');
             entry.className = 'log-entry ' + type;
             const timestamp = new Date().toLocaleTimeString();
-            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> `;
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'timestamp';
+            timeSpan.textContent = `[${timestamp}] `;
+            entry.appendChild(timeSpan);
+
             entry.appendChild(document.createTextNode(message));
             logDiv.appendChild(entry);
             logDiv.scrollTop = logDiv.scrollHeight;
         }
         
         function clearLog() {
-            document.getElementById('log').innerHTML = '';
+            document.getElementById('log').textContent = '';
             log('Log cleared', 'info');
         }
         
