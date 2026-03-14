@@ -87,10 +87,11 @@ $error = curl_error($ch);
 curl_close($ch);
 
 if ($error) {
-    echo "<div class='error'><strong>cURL Error:</strong> " . htmlspecialchars($error) . "</div>";
+    error_log("Find Node cURL Error: " . $error);
+    echo "<div class='error'><strong>Error:</strong> Failed to connect to Proxmox host.</div>";
 } elseif ($httpCode >= 400) {
-    echo "<div class='error'><strong>HTTP Error $httpCode</strong></div>";
-    echo "<pre>" . htmlspecialchars($response) . "</pre>";
+    error_log("Find Node HTTP Error $httpCode: $response");
+    echo "<div class='error'><strong>Error:</strong> Proxmox API returned an error.</div>";
 } else {
     $data = json_decode($response, true);
     

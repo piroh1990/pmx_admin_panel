@@ -44,3 +44,8 @@
 **Vulnerability:** Found both DOM-based XSS in `check_status.php` (unsanitized API response injected via `innerHTML`) and Reflected XSS in `find_node.php` (unsanitized node names and errors echoed directly into HTML output).
 **Learning:** Even internal diagnostic tools need strict output encoding. `innerHTML` should be avoided for rendering data from external APIs, and raw `echo` statements in PHP are dangerous if the input isn't entirely trusted or static.
 **Prevention:** Always use `document.createTextNode()` or `textContent` for dynamic DOM manipulation in JavaScript. In PHP, consistently apply `htmlspecialchars()` to any variables being output into an HTML context.
+
+## $(date +%Y-%m-%d) - Exception Handling Information Leakage
+**Vulnerability:** Found `debug_api.php` and `find_node.php` outputting raw exception messages, `cURL` errors, and unhandled Proxmox API response payloads directly into the HTML response.
+**Learning:** Returning unhandled exception messages or internal errors to the client can leak sensitive details such as API token secrets, local hostnames, proxy server paths, and application directory structures. Additionally, displaying raw HTTP responses (e.g., from `proxmox_api`) might leak cluster layout data.
+**Prevention:** Exception handling must always sanitize output. Log detailed error information securely on the server-side via `error_log` for diagnostic purposes, and return only generic, harmless error messages to the client-facing UI.

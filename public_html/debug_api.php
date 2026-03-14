@@ -32,9 +32,10 @@ function testApiCall($description, $callable) {
         $result['status'] = 'success';
         $result['message'] = 'Success';
     } catch (Exception $e) {
+        error_log("Debug API Error ({$description}): " . $e->getMessage());
         $result['status'] = 'error';
-        $result['error'] = $e->getMessage();
-        $result['message'] = $e->getMessage();
+        $result['error'] = 'An internal error occurred.';
+        $result['message'] = 'An internal error occurred.';
     }
     
     $result['time'] = round((microtime(true) - $startTime) * 1000, 2);
@@ -64,7 +65,7 @@ $testResults[] = [
         [
             'description' => 'API Token Secret',
             'status' => 'info',
-            'message' => substr(PVE_TOKEN_SECRET, 0, 8) . '...' . substr(PVE_TOKEN_SECRET, -4),
+            'message' => '********', // Masked for security
         ],
         [
             'description' => 'SSL Verification',
