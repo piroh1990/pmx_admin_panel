@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/helpers.php';
 
 // Require authentication
 requireAuth();
@@ -227,12 +228,43 @@ button:hover {
     color: #fff;
 }
 .reset:hover { background: #f44; }
+
+.nav-links {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #09f;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-links a:hover { text-decoration: underline; }
+
+.coord-link {
+    color: #0cf;
+    text-decoration: none;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.coord-link:hover {
+    text-decoration: underline;
+    color: #4df;
+}
 </style>
 </head>
 <body>
 
 <div class="header">
     <h1>🖥️ Proxmox VM Admin</h1>
+    <div class="nav-links">
+        <a href="fleet.php">Fleet Dispatch</a>
+        <a href="missions.php">Missions</a>
+        <a href="messages.php">Messages</a>
+    </div>
     <div class="user-info">
         <span class="user-name">👤 <?= htmlspecialchars($user['name']) ?></span>
         <form method="POST" action="logout.php" style="margin: 0;">
