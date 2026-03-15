@@ -48,8 +48,8 @@ function coordinateLink(int $galaxy, int $system, int $position, string $mission
         $params['mission'] = $mission;
     }
 
-    $url  = 'fleet.php?' . htmlspecialchars(http_build_query($params), ENT_QUOTES, 'UTF-8');
+    $url  = 'fleet.php?' . http_build_query($params);
     $text = htmlspecialchars("[{$galaxy}:{$system}:{$position}]", ENT_QUOTES, 'UTF-8');
 
-    return '<a href="' . $url . '" class="coord-link" title="Open Fleet Dispatch">' . $text . '</a>';
+    return '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="coord-link" title="Open Fleet Dispatch">' . $text . '</a>';
 }
