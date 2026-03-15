@@ -121,7 +121,8 @@ function attemptLogin($username, $password) {
 
     // Max 5 attempts
     if ($attempts >= 5) {
-        error_log("AUDIT: Rate limit exceeded for login attempts from IP: {$ip}. User attempted: '{$username}'.");
+        $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
+        error_log("AUDIT: Rate limit exceeded for login attempts from IP: {$ip}. User attempted: '{$safeUsername}'.");
         return [
             'success' => false,
             'message' => 'Too many failed attempts. Please try again in 15 minutes.'
@@ -154,7 +155,8 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
-        error_log("AUDIT: Successful login for user: '{$username}' from IP: {$ip}.");
+        $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
+        error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
         return [
             'success' => true,
@@ -165,7 +167,8 @@ function attemptLogin($username, $password) {
     // Failed login
     @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
     
-    error_log("AUDIT: Failed login attempt for user: '{$username}' from IP: {$ip}.");
+    $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
+    error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
 
     return [
         'success' => false,
@@ -177,7 +180,8 @@ function attemptLogin($username, $password) {
 function logout() {
     $username = $_SESSION['user'] ?? 'unknown';
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    error_log("AUDIT: User '{$username}' logged out from IP: {$ip}.");
+    $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
+    error_log("AUDIT: User '{$safeUsername}' logged out from IP: {$ip}.");
 
     $_SESSION = array();
     

@@ -44,3 +44,8 @@
 **Vulnerability:** Found both DOM-based XSS in `check_status.php` (unsanitized API response injected via `innerHTML`) and Reflected XSS in `find_node.php` (unsanitized node names and errors echoed directly into HTML output).
 **Learning:** Even internal diagnostic tools need strict output encoding. `innerHTML` should be avoided for rendering data from external APIs, and raw `echo` statements in PHP are dangerous if the input isn't entirely trusted or static.
 **Prevention:** Always use `document.createTextNode()` or `textContent` for dynamic DOM manipulation in JavaScript. In PHP, consistently apply `htmlspecialchars()` to any variables being output into an HTML context.
+
+## 2026-03-06 - Log Forging (CRLF Injection) in Audit Logs
+**Vulnerability:** `auth.php`, `actions.php`, and `status.php` directly logged user-supplied inputs (like `$username`, `$action`, `$ip`) and Exception messages via `error_log()` without sanitization. An attacker could inject newline characters (`\n`, `\r`) into these inputs to forge multi-line log entries, potentially confusing log analysis tools or hiding malicious activity.
+**Learning:** Functions like `error_log()` simply write strings as-is. If the string contains newlines from an untrusted source, it creates a new log line, allowing log forging/CRLF injection.
+**Prevention:** Always sanitize any variable passed to a logging function by removing or replacing newline characters (e.g., `str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $input)`).
