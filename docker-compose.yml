@@ -1,0 +1,12 @@
+services:
+  pmx-admin:
+    build: .
+    image: ghcr.io/piroh1990/pmx_admin_panel:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount your own config.php into the container.
+      # Copy config/config.example.php to config/config.php, edit it, then run:
+      #   docker compose up -d
+      - ./config/config.php:/app/config/config.php:ro
+    restart: unless-stopped
