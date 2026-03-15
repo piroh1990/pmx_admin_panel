@@ -46,7 +46,8 @@ try {
         'data' => $statuses
     ]);
 } catch (Exception $e) {
-    error_log("Status Error: " . $e->getMessage());
+    $safeError = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $e->getMessage());
+    error_log("Status Error: " . $safeError);
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
