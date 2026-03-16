@@ -69,7 +69,9 @@ function getMultipleVmStatus(array $vmids)
             $result = getVmStatus($vmid);
             $statuses[$vmid] = $result['data'] ?? null;
         } catch (Exception $e) {
-            error_log("VM Status Error ($vmid): " . $e->getMessage());
+            $safeError = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $e->getMessage());
+            $safeVmid = (int)$vmid;
+            error_log("VM Status Error ($safeVmid): " . $safeError);
             $statuses[$vmid] = [
                 'status' => 'error',
                 'error' => 'Failed to retrieve status'
