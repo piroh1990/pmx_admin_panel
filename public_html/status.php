@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/proxmox_api.php';
 
+// Ensure JSON response content type
+header('Content-Type: application/json; charset=utf-8');
+
 // Start session and require authentication
 startSecureSession();
 

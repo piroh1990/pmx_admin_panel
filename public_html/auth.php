@@ -20,6 +20,10 @@ function startSecureSession() {
         header("X-Content-Type-Options: nosniff");
         header("Referrer-Policy: strict-origin-when-cross-origin");
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'self'; form-action 'self';");
+
+        // Prevent caching of sensitive pages
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
     }
 
     if (session_status() === PHP_SESSION_NONE) {
