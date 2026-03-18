@@ -8,6 +8,7 @@ startSecureSession();
 
 if (!isLoggedIn()) {
     http_response_code(401);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Not authenticated'
@@ -19,6 +20,7 @@ if (!isLoggedIn()) {
 $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($csrfToken)) {
     http_response_code(403);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Invalid CSRF token'
@@ -32,6 +34,7 @@ try {
     $vmids = array_keys($userVMs);
     
     if (empty($vmids)) {
+        header('Content-Type: application/json');
         echo json_encode([
             'status' => 'ok',
             'data' => []
@@ -41,6 +44,7 @@ try {
     
     $statuses = getMultipleVmStatus($vmids);
     
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'ok',
         'data' => $statuses
@@ -49,6 +53,7 @@ try {
     $safeError = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $e->getMessage());
     error_log("Status Error: " . $safeError);
     http_response_code(500);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'An internal error occurred.'

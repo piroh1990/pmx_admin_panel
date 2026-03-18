@@ -8,6 +8,7 @@ startSecureSession();
 
 if (!isLoggedIn()) {
     http_response_code(401);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Not authenticated'
@@ -19,6 +20,7 @@ if (!isLoggedIn()) {
 $csrfToken = $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($csrfToken)) {
     http_response_code(403);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Invalid CSRF token'
@@ -33,6 +35,7 @@ $allowedActions = ['start', 'shutdown', 'reboot', 'reset'];
 
 if (!$vmid || !in_array($action, $allowedActions, true)) {
     http_response_code(400);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Invalid request'
@@ -43,6 +46,7 @@ if (!$vmid || !in_array($action, $allowedActions, true)) {
 // Check if user has access to this VM
 if (!canAccessVM($vmid)) {
     http_response_code(403);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'Access denied to this VM'
@@ -57,6 +61,7 @@ try {
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     $safeAction = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $action);
     error_log("AUDIT: User '{$safeUsername}' (IP: {$ip}) successfully executed '{$safeAction}' on VM {$vmid}.");
+    header('Content-Type: application/json');
     echo json_encode(['status' => 'ok']);
 } catch (Exception $e) {
     $username = $_SESSION['user'] ?? 'unknown';
@@ -67,6 +72,7 @@ try {
     error_log("AUDIT: User '{$safeUsername}' (IP: {$ip}) failed to execute '{$safeAction}' on VM {$vmid}. Error: " . $safeError);
     error_log("VM Action Error: " . $safeError);
     http_response_code(500);
+    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while executing the action.'
