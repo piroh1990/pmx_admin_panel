@@ -49,3 +49,8 @@
 **Vulnerability:** `auth.php`, `actions.php`, and `status.php` directly logged user-supplied inputs (like `$username`, `$action`, `$ip`) and Exception messages via `error_log()` without sanitization. An attacker could inject newline characters (`\n`, `\r`) into these inputs to forge multi-line log entries, potentially confusing log analysis tools or hiding malicious activity.
 **Learning:** Functions like `error_log()` simply write strings as-is. If the string contains newlines from an untrusted source, it creates a new log line, allowing log forging/CRLF injection.
 **Prevention:** Always sanitize any variable passed to a logging function by removing or replacing newline characters (e.g., `str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $input)`).
+
+## 2024-05-30 - Insecure Session Cookies & Missing HSTS
+**Vulnerability:** The session configuration in `auth.php` hardcoded `ini_set('session.cookie_secure', 0)`, meaning session cookies were always sent unencrypted over HTTP, even when accessed via HTTPS. Furthermore, the `Strict-Transport-Security` (HSTS) header was completely missing.
+**Learning:** Hardcoding insecure defaults to simplify local development creates a massive risk in production. If an administrator accesses the panel over public Wi-Fi, an active MITM attacker could intercept the `pmx_admin_session` cookie and hijack their session, gaining full control of the Proxmox VMs.
+**Prevention:** Always dynamically detect the connection protocol (checking `$_SERVER['HTTPS']` and `$_SERVER['HTTP_X_FORWARDED_PROTO']`) to enable the `Secure` flag on cookies and enforce HSTS in production without breaking local HTTP-based testing.
