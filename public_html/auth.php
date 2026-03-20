@@ -14,12 +14,20 @@ require_once __DIR__ . '/../config/config.php';
 
 // Start session with secure settings
 function startSecureSession() {
+    // Check if the connection is HTTPS
+    $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ||
+               (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
     // Set security headers
     if (!headers_sent()) {
         header("X-Frame-Options: SAMEORIGIN");
         header("X-Content-Type-Options: nosniff");
         header("Referrer-Policy: strict-origin-when-cross-origin");
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'self'; form-action 'self';");
+
+        if ($isHttps) {
+            header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+        }
 
         // Prevent caching of sensitive pages
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -30,7 +38,7 @@ function startSecureSession() {
         // Secure session configuration
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_secure', 0); // Set to 1 if using HTTPS
+        ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
         ini_set('session.cookie_samesite', 'Strict');
         
         session_name(SESSION_NAME);
