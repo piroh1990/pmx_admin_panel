@@ -64,7 +64,7 @@ $testResults[] = [
         [
             'description' => 'API Token Secret',
             'status' => 'info',
-            'message' => substr(PVE_TOKEN_SECRET, 0, 8) . '...' . substr(PVE_TOKEN_SECRET, -4),
+            'message' => '*** REDACTED ***',
         ],
         [
             'description' => 'SSL Verification',
