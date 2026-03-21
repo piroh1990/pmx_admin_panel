@@ -54,3 +54,7 @@
 **Vulnerability:** The session configuration in `auth.php` hardcoded `ini_set('session.cookie_secure', 0)`, meaning session cookies were always sent unencrypted over HTTP, even when accessed via HTTPS. Furthermore, the `Strict-Transport-Security` (HSTS) header was completely missing.
 **Learning:** Hardcoding insecure defaults to simplify local development creates a massive risk in production. If an administrator accesses the panel over public Wi-Fi, an active MITM attacker could intercept the `pmx_admin_session` cookie and hijack their session, gaining full control of the Proxmox VMs.
 **Prevention:** Always dynamically detect the connection protocol (checking `$_SERVER['HTTPS']` and `$_SERVER['HTTP_X_FORWARDED_PROTO']`) to enable the `Secure` flag on cookies and enforce HSTS in production without breaking local HTTP-based testing.
+## 2026-03-21 - Secret Leakage in Debug Tool
+**Vulnerability:** The API debug tool (`debug_api.php`) was intentionally leaking portions (the first 8 and last 4 characters) of the `PVE_TOKEN_SECRET` using `substr()`.
+**Learning:** Even internal diagnostic scripts meant to be hidden or restricted should never display partial secrets. Partial secrets can still reduce entropy or act as a stepping stone in an exploit chain if the debug tool is accidentally exposed.
+**Prevention:** Always completely redact sensitive configuration values (like API tokens or secrets) when outputting debug information (e.g., using `*** REDACTED ***`).
