@@ -10,13 +10,17 @@ if (isLoggedIn()) {
 }
 
 $error = '';
+$csrfToken = generateCsrfToken();
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
+    $postCsrfToken = $_POST['csrf_token'] ?? '';
     
-    if ($username && $password) {
+    if (!verifyCsrfToken($postCsrfToken)) {
+        $error = 'Invalid CSRF token';
+    } elseif ($username && $password) {
         $result = attemptLogin($username, $password);
         
         if ($result['success']) {
@@ -159,6 +163,7 @@ body {
     <?php endif; ?>
     
     <form method="POST" action="">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <div class="form-group">
             <label for="username">Username</label>
             <input 
@@ -168,6 +173,7 @@ body {
                 required 
                 autofocus
                 autocomplete="username"
+                maxlength="255"
             >
         </div>
         
@@ -179,6 +185,7 @@ body {
                 name="password" 
                 required
                 autocomplete="current-password"
+                maxlength="1024"
             >
         </div>
         

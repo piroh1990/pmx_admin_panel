@@ -58,3 +58,8 @@
 **Vulnerability:** The API debug tool (`debug_api.php`) was intentionally leaking portions (the first 8 and last 4 characters) of the `PVE_TOKEN_SECRET` using `substr()`.
 **Learning:** Even internal diagnostic scripts meant to be hidden or restricted should never display partial secrets. Partial secrets can still reduce entropy or act as a stepping stone in an exploit chain if the debug tool is accidentally exposed.
 **Prevention:** Always completely redact sensitive configuration values (like API tokens or secrets) when outputting debug information (e.g., using `*** REDACTED ***`).
+
+## 2026-03-23 - Login CSRF Vulnerability
+**Vulnerability:** The login form (`index.php`) did not include or validate a CSRF token. This allowed Login CSRF attacks where an attacker could forge a request to log a victim into the attacker's account, potentially compromising the victim's data if they unwittingly saved sensitive information while logged into the attacker's session.
+**Learning:** CSRF protection is not just for state-changing actions within an authenticated session (like changing a password or modifying data). The act of authenticating itself (logging in) changes the security state of the user's browser and must also be protected to prevent attackers from forcing the user into a known context.
+**Prevention:** Always include and validate CSRF tokens on all authentication endpoints, including login forms.
