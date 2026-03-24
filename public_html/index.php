@@ -11,22 +11,30 @@ if (isLoggedIn()) {
 
 $error = '';
 
+// Generate CSRF token for the login form
+$csrfToken = generateCsrfToken();
+
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if ($username && $password) {
-        $result = attemptLogin($username, $password);
-        
-        if ($result['success']) {
-            header('Location: admin.php');
-            exit;
-        } else {
-            $error = $result['message'];
-        }
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($submittedToken)) {
+        $error = 'Invalid CSRF token. Please try again.';
     } else {
-        $error = 'Please enter both username and password';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+        
+        if ($username && $password) {
+            $result = attemptLogin($username, $password);
+
+            if ($result['success']) {
+                header('Location: admin.php');
+                exit;
+            } else {
+                $error = $result['message'];
+            }
+        } else {
+            $error = 'Please enter both username and password';
+        }
     }
 }
 ?>
@@ -159,6 +167,7 @@ body {
     <?php endif; ?>
     
     <form method="POST" action="">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
         <div class="form-group">
             <label for="username">Username</label>
             <input 
