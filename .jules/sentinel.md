@@ -58,3 +58,8 @@
 **Vulnerability:** The API debug tool (`debug_api.php`) was intentionally leaking portions (the first 8 and last 4 characters) of the `PVE_TOKEN_SECRET` using `substr()`.
 **Learning:** Even internal diagnostic scripts meant to be hidden or restricted should never display partial secrets. Partial secrets can still reduce entropy or act as a stepping stone in an exploit chain if the debug tool is accidentally exposed.
 **Prevention:** Always completely redact sensitive configuration values (like API tokens or secrets) when outputting debug information (e.g., using `*** REDACTED ***`).
+
+## 2026-03-26 - Predictable Temporary File for Rate Limiting
+**Vulnerability:** The rate limiting file in `auth.php` was created using a predictable path: `sys_get_temp_dir() . '/pmx_login_' . md5($ip) . '.txt'`. In a shared environment (e.g., `/tmp`), an attacker could pre-create this file and restrict write access to it. When the PHP script attempts to log a failed login, `file_put_contents()` would silently fail (due to the `@` error suppression), effectively preventing the failure count from increasing and entirely bypassing the login rate limiter (CWE-377).
+**Learning:** Storing security state files in world-writable, shared directories using predictable names allows local attackers to perform Symlink or Denial-of-Service attacks against the security mechanism itself.
+**Prevention:** Always use a secret server-side value to salt filenames generated in shared temporary directories. Using `md5($ip . PVE_TOKEN_SECRET)` ensures the filename is unpredictable, preventing an attacker from pre-creating the file.

@@ -121,7 +121,8 @@ function attemptLogin($username, $password) {
     
     // Rate limiting by IP to prevent session-dropping bypasses
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $rateLimitFile = sys_get_temp_dir() . '/pmx_login_' . md5($ip) . '.txt';
+    // Use PVE_TOKEN_SECRET as a salt to prevent CWE-377 Predictable Temporary File vulnerability
+    $rateLimitFile = sys_get_temp_dir() . '/pmx_login_' . md5($ip . PVE_TOKEN_SECRET) . '.txt';
     $attempts = 0;
 
     if (file_exists($rateLimitFile)) {
@@ -199,7 +200,11 @@ function logout() {
     
     // Delete session cookie
     if (isset($_COOKIE[session_name()])) {
-        setcookie(session_name(), '', time() - 3600, '/');
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
     }
     
     session_destroy();
