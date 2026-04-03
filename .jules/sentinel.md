@@ -63,3 +63,13 @@
 **Vulnerability:** The rate limiting file in `auth.php` was created using a predictable path: `sys_get_temp_dir() . '/pmx_login_' . md5($ip) . '.txt'`. In a shared environment (e.g., `/tmp`), an attacker could pre-create this file and restrict write access to it. When the PHP script attempts to log a failed login, `file_put_contents()` would silently fail (due to the `@` error suppression), effectively preventing the failure count from increasing and entirely bypassing the login rate limiter (CWE-377).
 **Learning:** Storing security state files in world-writable, shared directories using predictable names allows local attackers to perform Symlink or Denial-of-Service attacks against the security mechanism itself.
 **Prevention:** Always use a secret server-side value to salt filenames generated in shared temporary directories. Using `md5($ip . PVE_TOKEN_SECRET)` ensures the filename is unpredictable, preventing an attacker from pre-creating the file.
+
+## 2026-03-27 - Active Session Destruction on Anomaly
+**Vulnerability:** The session hijacking defense in `auth.php` (`isLoggedIn`) merely returned `false` on a fingerprint mismatch. The hijacked session ID was not destroyed, potentially allowing an attacker to reuse or brute-force a hijacked session.
+**Learning:** Passive rejection (returning false) of a session without destroying it leaves the session alive. If an anomaly like a fingerprint mismatch is detected, it's highly likely an active attack.
+**Prevention:** Always actively destroy the session (`session_unset()` and `session_destroy()`) when an anomaly (like a user-agent mismatch) is detected to neutralize the threat immediately.
+
+## 2026-03-27 - CSRF Token Fixation / Login CSRF
+**Vulnerability:** The login functionality in `auth.php` (`attemptLogin`) regenerated the session ID but did not regenerate the CSRF token upon successful authentication. An attacker could force a victim to use an attacker-known CSRF token, leading to a Login CSRF attack.
+**Learning:** Regenerating the session ID is not enough to protect against fixation attacks if security tokens are persisted across privilege boundaries.
+**Prevention:** Always regenerate CSRF tokens alongside session IDs when a user successfully authenticates to sever the link between the pre-auth and post-auth state.
