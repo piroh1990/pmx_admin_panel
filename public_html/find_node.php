@@ -74,6 +74,7 @@ $ch = curl_init($url);
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_SSL_VERIFYPEER => VERIFY_SSL,
+    CURLOPT_SSL_VERIFYHOST => VERIFY_SSL ? 2 : 0,
     CURLOPT_TIMEOUT => 10,
     CURLOPT_CONNECTTIMEOUT => 5,
     CURLOPT_HTTPHEADER => [
