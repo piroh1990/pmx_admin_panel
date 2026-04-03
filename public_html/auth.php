@@ -40,6 +40,7 @@ function startSecureSession() {
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
         ini_set('session.cookie_samesite', 'Strict');
+        ini_set('session.use_strict_mode', 1); // Prevent session fixation via uninitialized session IDs
         
         session_name(SESSION_NAME);
         session_start();
@@ -82,7 +83,7 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
         return false;
     }
     
