@@ -36,6 +36,7 @@ function startSecureSession() {
 
     if (session_status() === PHP_SESSION_NONE) {
         // Secure session configuration
+        ini_set('session.use_strict_mode', 1);
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
@@ -82,7 +83,9 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
+        session_unset();
+        session_destroy();
         return false;
     }
     
@@ -201,10 +204,14 @@ function logout() {
     // Delete session cookie
     if (isset($_COOKIE[session_name()])) {
         $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
+        setcookie(session_name(), '', [
+            'expires' => time() - 42000,
+            'path' => $params["path"],
+            'domain' => $params["domain"],
+            'secure' => $params["secure"],
+            'httponly' => $params["httponly"],
+            'samesite' => $params["samesite"] ?? 'Strict'
+        ]);
     }
     
     session_destroy();
