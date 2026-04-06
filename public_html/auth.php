@@ -82,7 +82,9 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
+        session_unset();
+        session_destroy();
         return false;
     }
     
@@ -168,6 +170,9 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
+        // Regenerate CSRF token to prevent token fixation (Login CSRF)
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
