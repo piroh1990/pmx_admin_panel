@@ -63,3 +63,13 @@
 **Vulnerability:** The rate limiting file in `auth.php` was created using a predictable path: `sys_get_temp_dir() . '/pmx_login_' . md5($ip) . '.txt'`. In a shared environment (e.g., `/tmp`), an attacker could pre-create this file and restrict write access to it. When the PHP script attempts to log a failed login, `file_put_contents()` would silently fail (due to the `@` error suppression), effectively preventing the failure count from increasing and entirely bypassing the login rate limiter (CWE-377).
 **Learning:** Storing security state files in world-writable, shared directories using predictable names allows local attackers to perform Symlink or Denial-of-Service attacks against the security mechanism itself.
 **Prevention:** Always use a secret server-side value to salt filenames generated in shared temporary directories. Using `md5($ip . PVE_TOKEN_SECRET)` ensures the filename is unpredictable, preventing an attacker from pre-creating the file.
+
+## 2026-04-09 - Session Management Vulnerabilities & Fixes
+**Vulnerability:** The application was vulnerable to Session Fixation (strict mode disabled), Timing Attacks on session fingerprint comparison, Login CSRF (token not regenerated on login), and Race Conditions during failed login rate limiting.
+**Learning:** Proper session management requires defense-in-depth: strict session IDs prevent attackers from forcing known IDs, `hash_equals()` mitigates timing side-channels during verification, regenerating tokens on auth boundary crossings prevents fixation/login CSRF, and atomic file operations (`LOCK_EX`) are critical for stateful security mechanisms (like rate limiters) to survive concurrent requests. Proactively destroying compromised sessions is safer than merely returning false.
+**Prevention:**
+1. Always enable `session.use_strict_mode = 1`.
+2. Always use `hash_equals()` for comparing security tokens or session fingerprints.
+3. Proactively call `session_unset()` and `session_destroy()` upon security violations.
+4. Always regenerate CSRF tokens alongside session IDs upon successful authentication.
+5. Always use locking mechanisms (`LOCK_EX`) when updating shared files for security state (like rate limits).
