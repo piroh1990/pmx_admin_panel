@@ -36,6 +36,7 @@ function startSecureSession() {
 
     if (session_status() === PHP_SESSION_NONE) {
         // Secure session configuration
+        ini_set('session.use_strict_mode', 1);
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
@@ -82,7 +83,9 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
+        session_unset();
+        session_destroy();
         return false;
     }
     
@@ -168,6 +171,9 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
+        // Regenerate CSRF token to prevent CSRF token fixation (Login CSRF)
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
@@ -178,7 +184,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time(), LOCK_EX);
     
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
