@@ -82,7 +82,9 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
+        session_unset();
+        session_destroy();
         return false;
     }
     
@@ -168,6 +170,9 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
+        // Regenerate CSRF token on login to prevent Login CSRF
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
@@ -178,7 +183,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time(), LOCK_EX);
     
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
@@ -201,10 +206,15 @@ function logout() {
     // Delete session cookie
     if (isset($_COOKIE[session_name()])) {
         $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
+        $cookieOptions = [
+            'expires' => time() - 42000,
+            'path' => $params["path"],
+            'domain' => $params["domain"],
+            'secure' => $params["secure"],
+            'httponly' => $params["httponly"],
+            'samesite' => $params["samesite"] ?? 'Strict'
+        ];
+        setcookie(session_name(), '', $cookieOptions);
     }
     
     session_destroy();
