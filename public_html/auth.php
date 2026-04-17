@@ -168,6 +168,9 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
+        // Regenerate CSRF token to prevent CSRF token fixation (Login CSRF)
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
