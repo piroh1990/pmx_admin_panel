@@ -67,3 +67,13 @@
 **Vulnerability:** External API calls using `curl` had `CURLOPT_SSL_VERIFYPEER` configured, but were missing an explicit `CURLOPT_SSL_VERIFYHOST` configuration. When SSL verification is disabled, libcurl still verifies the host by default if `CURLOPT_SSL_VERIFYHOST` is omitted, potentially causing unexpected errors if the certificate doesn't match the requested host (e.g., when testing against a Proxmox node with a default self-signed cert). On the flip side, it ensures host verification isn't accidentally bypassed when peer verification is enabled.
 **Learning:** `CURLOPT_SSL_VERIFYHOST` should be explicitly bound to the intended SSL verification state (e.g., `VERIFY_SSL ? 2 : 0`) alongside `CURLOPT_SSL_VERIFYPEER` to ensure strict host verification when SSL is enabled and to safely disable it when bypassed.
 **Prevention:** Always pair `CURLOPT_SSL_VERIFYPEER` and `CURLOPT_SSL_VERIFYHOST` configurations in `curl_setopt_array()`.
+
+## 2026-04-18 - Race Condition in Rate Limiting
+**Vulnerability:** The rate limiting feature in `auth.php` used `@file_put_contents` without any locking mechanism (`LOCK_EX`). During a concurrent brute-force attack, multiple requests could read and write the rate-limit file simultaneously. This race condition could lead to file corruption (saving an empty or invalid string instead of a valid counter), allowing an attacker to reset the counter or bypass the rate limiting altogether.
+**Learning:** File-based state mechanisms (like login attempt counters) are highly susceptible to Time-Of-Check to Time-Of-Use (TOCTOU) race conditions under load. Relying on simple file writes is insufficient when concurrent processes might modify the same file.
+**Prevention:** Always use file locking (e.g., passing the `LOCK_EX` flag to `file_put_contents`) when updating stateful security files, ensuring atomic write operations during concurrent requests.
+
+## 2026-04-18 - Session Fixation and CSRF Token Fixation
+**Vulnerability:** Session IDs were not securely restricted to validly initialized IDs via `session.use_strict_mode = 1`, making the application vulnerable to Session Fixation if an uninitialized ID could be forced. In addition, CSRF tokens were not regenerated upon successful authentication, allowing for Login CSRF via token fixation.
+**Learning:** Security tokens and session identifiers must be regenerated crossing privilege boundaries (e.g., logging in). Additionally, sessions must only accept server-generated IDs to prevent fixation attacks.
+**Prevention:** Ensure `session.use_strict_mode = 1` is configured to reject uninitialized session IDs, and regenerate security tokens (like CSRF tokens) alongside session IDs upon successful authentication.
