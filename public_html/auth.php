@@ -82,7 +82,10 @@ function isLoggedIn() {
     
     // Verify session fingerprint to prevent session hijacking
     $expectedFingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $expectedFingerprint) {
+    if (!isset($_SESSION['fingerprint']) || !hash_equals($_SESSION['fingerprint'], $expectedFingerprint)) {
+        // Destroy session on fingerprint mismatch to prevent further abuse
+        session_unset();
+        session_destroy();
         return false;
     }
     
