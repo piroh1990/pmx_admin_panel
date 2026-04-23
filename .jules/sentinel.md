@@ -67,3 +67,8 @@
 **Vulnerability:** External API calls using `curl` had `CURLOPT_SSL_VERIFYPEER` configured, but were missing an explicit `CURLOPT_SSL_VERIFYHOST` configuration. When SSL verification is disabled, libcurl still verifies the host by default if `CURLOPT_SSL_VERIFYHOST` is omitted, potentially causing unexpected errors if the certificate doesn't match the requested host (e.g., when testing against a Proxmox node with a default self-signed cert). On the flip side, it ensures host verification isn't accidentally bypassed when peer verification is enabled.
 **Learning:** `CURLOPT_SSL_VERIFYHOST` should be explicitly bound to the intended SSL verification state (e.g., `VERIFY_SSL ? 2 : 0`) alongside `CURLOPT_SSL_VERIFYPEER` to ensure strict host verification when SSL is enabled and to safely disable it when bypassed.
 **Prevention:** Always pair `CURLOPT_SSL_VERIFYPEER` and `CURLOPT_SSL_VERIFYHOST` configurations in `curl_setopt_array()`.
+
+## 2026-04-23 - Login CSRF Fixation
+**Vulnerability:** CSRF tokens were not regenerated upon login, allowing CSRF token fixation.
+**Learning:** If an attacker can force a victim to use an attacker-known CSRF token, they can execute a Login CSRF attack.
+**Prevention:** Regenerate the CSRF token upon successful authentication alongside the session ID.
