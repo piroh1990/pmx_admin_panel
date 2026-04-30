@@ -72,3 +72,13 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2024-06-01 - Session Fixation via Uninitialized Session IDs
+**Vulnerability:** The session configuration in `auth.php` did not enforce `session.use_strict_mode = 1`. This allowed an attacker to potentially perform a session fixation attack by forcing a known, uninitialized session ID on a victim's browser before they authenticated.
+**Learning:** Default PHP session configurations allow the client to specify a session ID that doesn't yet exist on the server. If a victim authenticates using an attacker-supplied session ID, the attacker can hijack the session.
+**Prevention:** Always enable `session.use_strict_mode = 1` so that PHP rejects uninitialized session IDs provided by the client and generates a new, secure ID.
+
+## 2024-06-01 - Login CSRF / CSRF Token Fixation
+**Vulnerability:** The CSRF token was not regenerated upon successful login in `attemptLogin()`. An attacker could exploit this to perform a Login CSRF attack, where they fixate a known CSRF token on a victim's session, log the victim into the attacker's account, and then exploit the known token to perform actions on the victim's behalf.
+**Learning:** Just like session IDs, security tokens tied to an anonymous session must be invalidated or regenerated when the session transitions to an authenticated state to prevent fixation attacks.
+**Prevention:** Actively regenerate the CSRF token (`$_SESSION['csrf_token'] = bin2hex(random_bytes(32));`) immediately upon successful authentication, alongside regenerating the session ID.
