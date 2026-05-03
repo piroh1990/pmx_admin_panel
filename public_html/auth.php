@@ -26,7 +26,7 @@ function startSecureSession() {
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'self'; form-action 'self';");
 
         if ($isHttps) {
-            header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+            header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
         }
 
         // Prevent caching of sensitive pages
@@ -36,6 +36,7 @@ function startSecureSession() {
 
     if (session_status() === PHP_SESSION_NONE) {
         // Secure session configuration
+        ini_set('session.use_strict_mode', 1);
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
@@ -169,6 +170,8 @@ function attemptLogin($username, $password) {
         
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
+        // Regenerate CSRF token to prevent Login CSRF
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
@@ -180,7 +183,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time(), LOCK_EX);
     
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
