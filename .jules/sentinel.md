@@ -72,3 +72,7 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+## 2026-05-03 - [Session & CSRF Improvements]
+**Vulnerability:** Session Strict Mode was disabled, HSTS lacked preload, CSRF tokens didn't regenerate on login, and rate limiting lacked file locks.
+**Learning:** Implementing defense-in-depth mechanisms for sessions prevents fixation and race conditions.
+**Prevention:** Always enforce strict session configurations, regenerate state tokens along with session IDs, and properly lock temporary files during concurrent writes.
