@@ -169,6 +169,8 @@ function attemptLogin($username, $password) {
         
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
+        // Regenerate CSRF token to prevent Login CSRF
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
@@ -180,7 +182,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time(), LOCK_EX);
     
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
@@ -235,17 +237,22 @@ function getUserVMs() {
     $username = $_SESSION['user'];
     
     // If user has specific vm_access defined, use it
-    if (isset($USERS[$username]['vm_access']) && is_array($USERS[$username]['vm_access'])) {
-        $accessibleVMIds = $USERS[$username]['vm_access'];
-        
-        // Filter $VMS to only include VMs the user has access to
-        $userVMs = [];
-        foreach ($accessibleVMIds as $vmid) {
-            if (isset($VMS[$vmid])) {
-                $userVMs[$vmid] = $VMS[$vmid];
+    if (isset($USERS[$username]) && array_key_exists('vm_access', $USERS[$username])) {
+        if (is_array($USERS[$username]['vm_access'])) {
+            $accessibleVMIds = $USERS[$username]['vm_access'];
+
+            // Filter $VMS to only include VMs the user has access to
+            $userVMs = [];
+            foreach ($accessibleVMIds as $vmid) {
+                if (isset($VMS[$vmid])) {
+                    $userVMs[$vmid] = $VMS[$vmid];
+                }
             }
+            return $userVMs;
+        } else {
+            // Fail securely if vm_access is explicitly declared but not an array
+            return [];
         }
-        return $userVMs;
     }
     
     // If no vm_access defined, user has access to all VMs (backward compatibility)
