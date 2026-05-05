@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2024-05-24 - [Login CSRF & Cookie Invalidation]
+**Vulnerability:** CSRF token was not regenerated on login (allowing Login CSRF), `Strict-Transport-Security` lacked `preload`, `session.use_strict_mode` was disabled, and session cookie invalidation did not enforce `SameSite=Strict` properly.
+**Learning:** `setcookie()` array syntax (PHP 7.3+) is required to properly clear cookies with `SameSite` attributes because the older parameter list method doesn't support it directly. Login CSRF is a specific threat model where an attacker forces a victim into an attacker-controlled account, requiring token rotation during login.
+**Prevention:** Always regenerate CSRF tokens alongside session IDs. Enable `use_strict_mode` for sessions, and use PHP 7.3 array syntax for all `setcookie()` calls.
