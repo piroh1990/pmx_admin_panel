@@ -169,6 +169,7 @@ function attemptLogin($username, $password) {
         
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
@@ -180,7 +181,7 @@ function attemptLogin($username, $password) {
     }
     
     // Failed login
-    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());
+    @file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time(), LOCK_EX);
     
     $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
     error_log("AUDIT: Failed login attempt for user: '{$safeUsername}' from IP: {$ip}.");
