@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2024-05-30 - Fix rate limiting race condition and CSRF fixation
+**Vulnerability:** The rate limiting file in `auth.php` was created without a lock (`@file_put_contents($rateLimitFile, ($attempts + 1) . '|' . time());`), causing a race condition during concurrent login attempts. Additionally, the CSRF token was not regenerated after a successful login (`attemptLogin`), leading to potential CSRF fixation.
+**Learning:** Rate limiting file access needs `LOCK_EX` to prevent race conditions that bypass limit counters. CSRF tokens must be explicitly regenerated upon successful authentication.
+**Prevention:** Always use `LOCK_EX` when updating shared state files for security controls. Always regenerate security tokens like CSRF tokens upon a change in user authentication state.
