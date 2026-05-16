@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-05-16 - Insecure Session Cookie Invalidation
+**Vulnerability:** The session deletion in `logout()` used the old `setcookie()` positional parameter syntax. This misses the `samesite` property (introduced in PHP 7.3+ array syntax), leading to browsers potentially ignoring the deletion instruction or treating it insecurely.
+**Learning:** When invalidating session cookies, `setcookie()` must precisely match all parameters of the original cookie (including `SameSite`) to guarantee secure removal across modern browsers.
+**Prevention:** Always use `session_get_cookie_params()` alongside PHP 7.3+ array syntax in `setcookie()` to reliably clear session cookies, ensuring `samesite` is properly passed.
