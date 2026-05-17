@@ -177,6 +177,7 @@ body {
                 required 
                 autofocus
                 autocomplete="username"
+                maxlength="255"
             >
         </div>
         
@@ -188,6 +189,7 @@ body {
                 name="password" 
                 required
                 autocomplete="current-password"
+                maxlength="1024"
             >
         </div>
         
