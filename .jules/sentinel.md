@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-05-17 - Insecure Fallback on Invalid Access Configuration
+**Vulnerability:** `getUserVMs()` in `auth.php` used `isset($USERS[$username]['vm_access']) && is_array($USERS[$username]['vm_access'])` to check for access restrictions. If `vm_access` was defined but was not an array (e.g., a string due to misconfiguration), the check would silently fail and fall back to granting access to *all* VMs.
+**Learning:** Optional array-based access restrictions must not use `isset() && is_array()` as a gate. If an administrator intends to restrict access but makes a configuration syntax error, the system must fail closed (deny access), not fail open (grant full access).
+**Prevention:** Always explicitly check if the configuration key exists using `array_key_exists()`. If it exists but the data type is invalid, halt execution or explicitly deny access rather than falling through to permissive defaults.
