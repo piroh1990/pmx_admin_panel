@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-05-22 - [Strict Configuration Validation for Optional Arrays]
+**Vulnerability:** Authorization Bypass via Invalid Array Configuration (isset/is_array fallback)
+**Learning:** Using `isset($array['key']) && is_array($array['key'])` to gate access control based on an optional configuration array creates a bypass. If the configuration is intentionally restricted but set to an invalid type (like the string 'none'), the check silently fails and falls through to a permissive default behavior.
+**Prevention:** Always verify if the key explicitly exists using `array_key_exists()`. If it exists but has an invalid data type, halt execution or deny access strictly (fail securely) instead of ignoring the configuration and granting default permissions.
