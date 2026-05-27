@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-05-27 - Insecure Default Fallback on Invalid RBAC Configuration
+**Vulnerability:** The `getUserVMs()` function in `auth.php` fell back to granting full VM access (`$VMS`) if a user's `vm_access` configuration was explicitly defined but had an invalid data type (e.g., a string instead of an array).
+**Learning:** Security checks that rely on optional configuration must fail securely. If a security restriction (like an access control list) is explicitly declared but invalidly configured, the system must strictly deny access instead of falling back to permissive defaults.
+**Prevention:** When evaluating optional array-based access restrictions, do not chain `isset()` and `is_array()` as a single gate. Always explicitly check `isset()` for the parent array and `array_key_exists()` for the restricted key, and halt execution/deny access if the data type is incorrectly configured.
