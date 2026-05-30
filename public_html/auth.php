@@ -36,6 +36,7 @@ function startSecureSession() {
 
     if (session_status() === PHP_SESSION_NONE) {
         // Secure session configuration
+        ini_set('session.use_strict_mode', 1); // Prevent session fixation by rejecting uninitialized session IDs
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_secure', $isHttps ? 1 : 0); // Set to 1 if using HTTPS
@@ -170,6 +171,9 @@ function attemptLogin($username, $password) {
         // Regenerate session ID to prevent session fixation
         session_regenerate_id(true);
         
+        // Actively regenerate CSRF token to prevent CSRF token fixation (Login CSRF)
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
         $safeUsername = str_replace(array("\r", "\n", "%0d", "%0a"), ' ', $username);
         error_log("AUDIT: Successful login for user: '{$safeUsername}' from IP: {$ip}.");
 
