@@ -59,7 +59,7 @@ $testResults[] = [
         [
             'description' => 'API Token ID',
             'status' => 'info',
-            'message' => PVE_TOKEN_ID,
+            'message' => '*** REDACTED ***',
         ],
         [
             'description' => 'API Token Secret',
