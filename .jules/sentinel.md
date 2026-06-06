@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-06-06 - Prevent Session Fixation and Login CSRF
+**Vulnerability:** The application did not enforce `session.use_strict_mode = 1` and did not regenerate the CSRF token upon successful authentication.
+**Learning:** Without strict mode, PHP accepts uninitialized session IDs provided by the client, allowing session fixation attacks. Without CSRF token regeneration on login, the application is vulnerable to Login CSRF, where an attacker can force a user to log in under an attacker-controlled context.
+**Prevention:** Always enable `session.use_strict_mode = 1` to reject client-provided uninitialized session IDs. Always regenerate the CSRF token (in addition to the session ID) upon successful authentication to ensure a clean slate and prevent fixation.
