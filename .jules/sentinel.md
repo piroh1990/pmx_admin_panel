@@ -72,3 +72,8 @@
 **Vulnerability:** The session fingerprint validation in `auth.php` returned `false` on a mismatch but left the session active. An attacker who stole a session cookie could repeatedly attempt to guess the correct `User-Agent` to bypass the fingerprint check.
 **Learning:** Returning `false` on a security check within an authentication loop often fails to remediate the underlying compromised state. If a session identifier is presented with an invalid context (like a changed fingerprint), the session itself should be considered compromised.
 **Prevention:** Always proactively destroy compromised sessions (`session_unset()` and `session_destroy()`) when an anomaly like a fingerprint mismatch is detected, rather than merely rejecting the current validation attempt. This forces re-authentication and neutralizes the stolen identifier.
+
+## 2026-06-13 - Authorization Bypass via Fail-Open Configuration
+**Vulnerability:** `getUserVMs()` in `auth.php` used `isset($USERS[$username]['vm_access']) && is_array($USERS[$username]['vm_access'])` to restrict VM access. If `vm_access` was defined but invalidly configured as a string, the condition silently failed and fell through to returning all VMs.
+**Learning:** Chaining `isset()` and type checks (like `is_array()`) for optional security configurations creates a dangerous fail-open scenario. Invalid configurations should result in denied access, not permissive defaults.
+**Prevention:** Always use `array_key_exists()` to check if an optional security restriction is defined, and halt execution or return empty/safe defaults if the data type is incorrectly configured.
