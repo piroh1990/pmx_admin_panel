@@ -235,7 +235,12 @@ function getUserVMs() {
     $username = $_SESSION['user'];
     
     // If user has specific vm_access defined, use it
-    if (isset($USERS[$username]['vm_access']) && is_array($USERS[$username]['vm_access'])) {
+    // Security Fix: Explicitly check array_key_exists. If declared but invalidly configured (e.g., string),
+    // strictly deny access (return []) instead of falling through to permissive defaults.
+    if (isset($USERS[$username]) && array_key_exists('vm_access', $USERS[$username])) {
+        if (!is_array($USERS[$username]['vm_access'])) {
+            return [];
+        }
         $accessibleVMIds = $USERS[$username]['vm_access'];
         
         // Filter $VMS to only include VMs the user has access to
